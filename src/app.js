@@ -2,17 +2,41 @@
 
 /* Classes */
 const Game = require('./game');
+const EntityManager = require('./EntityManager')
 
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
+var em = new EntityManager();
+var level = 1;
+var score = 0;
+var backgroundMusic = new Audio('assets/background_music.mp3');
+var winning = new Audio('assets/winning.wav');
+var turningPipe = new Audio('assets/turningPope.wav');
+var placingPipeDown = new Audio('assets/placingPipeDown.wav');
+var losing = new Audio('assets/losing.wav');
 image.src = 'assets/pipes.png';
+backgroundMusic.play();
 
 canvas.onclick = function(event) {
+  console.log(event.which);
   event.preventDefault();
   // TODO: Place or rotate pipe tile
-}
+  switch(event.which){
+  		case 1:
+        console.log("Left mouse click")
+        backgroundMusic.pause();
+        placingPipeDown.play();
+  			break;
+  		case 3:
+        console.log("Right mouse click.")
+        backgroundMusic.pause();
+        turningPipe.play();
+  		 break;
+  		default : console.log('aqui');
+    }
+  }
 
 /**
  * @function masterLoop
@@ -37,6 +61,11 @@ masterLoop(performance.now());
 function update(elapsedTime) {
 
   // TODO: Advance the fluid
+  if(placingPipeDown.ended && backgroundMusic.paused)
+  {
+    console.log("Got in the if statement.");
+    backgroundMusic.play();
+  }
 }
 
 /**
@@ -49,7 +78,9 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   // TODO: Render the board
+   ctx.fillStyle = "black";
+   ctx.fillText("Score:" + score, canvas.width - 80, 10);
+   ctx.fillText("Level:" + level, 10, 10);
 
 }

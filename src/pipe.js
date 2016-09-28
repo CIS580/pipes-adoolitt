@@ -5,14 +5,14 @@ const MS_PER_FRAME = 1000/8;
 /**
  * @module exports the Player class
  */
-module.exports = exports = Player;
+module.exports = exports = Pipe;
 
 /**
  * @constructor Player
  * Creates a new player object
  * @param {Postition} position object specifying an x and y
  */
-function Player(position, image) {
+function Pipe(position, image) {
   this.x = position.x;
   this.y = position.y;
   this.width  = 64;
@@ -28,7 +28,7 @@ function Player(position, image) {
  * @function updates the player object
  * {DOMHighResTimeStamp} time the elapsed time since the last frame
  */
-Player.prototype.update = function(time) {
+Pipe.prototype.update = function(time) {
 
 }
 
@@ -45,4 +45,5 @@ Pipe.prototype.render = function(time, ctx) {
         this.frame * 64, 64, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
+    );
   }

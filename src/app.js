@@ -2,13 +2,16 @@
 
 /* Classes */
 const Game = require('./game');
-const EntityManager = require('./EntityManager')
-
+const EntityManager = require('./EntityManager');
+const Pipe = require('./pipe.js');
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
-var em = new EntityManager();
+var em = new EntityManager(canvas.width, canvas.height, 64);
+var startPipe = new Pipe({x: 0, y: 64}, 'assets/startPipe.png');
+var endingPipe = new Pipe({x: canvas.width - 64, y: 64}, 'assets/endingPipe.png');
+
 var level = 1;
 var score = 0;
 var backgroundMusic = new Audio('assets/background_music.mp3');
@@ -79,6 +82,8 @@ function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   // TODO: Render the board
+   startPipe.render(elapsedTime, ctx);
+   endingPipe.render(elapsedTime, ctx);
    ctx.fillStyle = "black";
    ctx.fillText("Score:" + score, canvas.width - 80, 10);
    ctx.fillText("Level:" + level, 10, 10);

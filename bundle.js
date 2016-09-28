@@ -105,13 +105,16 @@ EntityManager.prototype.renderCells = function(ctx) {
 
 /* Classes */
 const Game = require('./game');
-const EntityManager = require('./EntityManager')
-
+const EntityManager = require('./EntityManager');
+const Pipe = require('./pipe.js');
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
-var em = new EntityManager();
+var em = new EntityManager(canvas.width, canvas.height, 64);
+var startPipe = new Pipe({x: 0, y: 64}, 'assets/startPipe.png');
+var endingPipe = new Pipe({x: canvas.width - 64, y: 64}, 'assets/endingPipe.png');
+
 var level = 1;
 var score = 0;
 var backgroundMusic = new Audio('assets/background_music.mp3');
@@ -134,6 +137,8 @@ canvas.onclick = function(event) {
   			break;
   		case 3:
         console.log("Right mouse click.")
+        backgroundMusic.pause();
+        turningPipe.play();
   		 break;
   		default : console.log('aqui');
     }
@@ -180,13 +185,15 @@ function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   // TODO: Render the board
+   startPipe.render(elapsedTime, ctx);
+   endingPipe.render(elapsedTime, ctx);
    ctx.fillStyle = "black";
    ctx.fillText("Score:" + score, canvas.width - 80, 10);
    ctx.fillText("Level:" + level, 10, 10);
 
 }
 
-},{"./EntityManager":1,"./game":3}],3:[function(require,module,exports){
+},{"./EntityManager":1,"./game":3,"./pipe.js":4}],3:[function(require,module,exports){
 "use strict";
 
 /**
@@ -243,5 +250,56 @@ Game.prototype.loop = function(newTime) {
   // Flip the back buffer
   this.frontCtx.drawImage(this.backBuffer, 0, 0);
 }
+
+},{}],4:[function(require,module,exports){
+"use strict";
+
+const MS_PER_FRAME = 1000/8;
+
+/**
+ * @module exports the Player class
+ */
+module.exports = exports = Pipe;
+
+/**
+ * @constructor Player
+ * Creates a new player object
+ * @param {Postition} position object specifying an x and y
+ */
+function Pipe(position, image) {
+  this.x = position.x;
+  this.y = position.y;
+  this.width  = 64;
+  this.height = 64;
+  this.spritesheet  = new Image();
+  this.spritesheet.src = encodeURI(image);
+  this.timer = 0;
+  this.frame = 0;
+}
+
+
+/**
+ * @function updates the player object
+ * {DOMHighResTimeStamp} time the elapsed time since the last frame
+ */
+Pipe.prototype.update = function(time) {
+
+}
+
+/**
+ * @function renders the player into the provided context
+ * {DOMHighResTimeStamp} time the elapsed time since the last frame
+ * {CanvasRenderingContext2D} ctx the context to render into
+ */
+Pipe.prototype.render = function(time, ctx) {
+      ctx.drawImage(
+        // image
+        this.spritesheet,
+        // source rectangle
+        this.frame * 64, 64, this.width, this.height,
+        // destination rectangle
+        this.x, this.y, this.width, this.height
+    );
+  }
 
 },{}]},{},[2]);

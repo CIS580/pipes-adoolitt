@@ -1,119 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = exports = EntityManager;
-
-function EntityManager(width, height, cellSize) {
-  this.cellSize = cellSize;
-  this.widthInCells = Math.ceil(width / cellSize);
-  this.heightInCells = Math.ceil(height / cellSize);
-  this.cells = [];
-  this.numberOfCells = this.widthInCells * this.heightInCells;
-  for(var i = 0; i < this.numberOfCells; i++) {
-    this.cells[i] = [];
-  }
-  this.cells[-1] = [];
-}
-
-function getIndex(x, y) {
-  var x = Math.floor(x / this.cellSize);
-  var y = Math.floor(y / this.cellSize);
-  if(x < 0 ||
-     x >= this.widthInCells ||
-     y < 0 ||
-     y >= this.heightInCells
-  ) return -1;
-  return y * this.widthInCells + x;
-}
-
-EntityManager.prototype.addEntity = function(entity){
-  var index = getIndex.call(this, entity.x, entity.y);
-  this.cells[index].push(entity);
-  entity._cell = index;
-}
-
-EntityManager.prototype.updateEntity = function(entity){
-  var index = getIndex.call(this, entity.x, entity.y);
-  // If we moved to a new cell, remove from old and add to new
-  if(index != entity._cell) {
-    var cellIndex = this.cells[entity._cell].indexOf(entity);
-    if(cellIndex != -1) this.cells[entity._cell].splice(cellIndex, 1);
-    this.cells[index].push(entity);
-    entity._cell = index;
-  }
-}
-
-EntityManager.prototype.removeEntity = function(entity) {
-  var cellIndex = this.cells[entity._cell].indexOf(entity);
-  if(cellIndex != -1) this.cells[entity._cell].splice(cellIndex, 1);
-  entity._cell = undefined;
-}
-
-EntityManager.prototype.collide = function(callback) {
-  var self = this;
-  this.cells.forEach(function(cell, i) {
-    // test for collisions
-    cell.forEach(function(entity1) {
-      // check for collisions with cellmates
-      cell.forEach(function(entity2) {
-        if(entity1 != entity2) checkForCollision(entity1, entity2, callback);
-
-        // check for collisions in cell to the right
-        if(i % (self.widthInCells - 1) != 0) {
-          self.cells[i+1].forEach(function(entity2) {
-            checkForCollision(entity1, entity2, callback);
-          });
-        }
-
-        // check for collisions in cell below
-        if(i < self.numberOfCells - self.widthInCells) {
-          self.cells[i+self.widthInCells].forEach(function(entity2){
-            checkForCollision(entity1, entity2, callback);
-          });
-        }
-
-        // check for collisions diagionally below and right
-        if(i < self.numberOfCells - self.withInCells && i % (self.widthInCells - 1) != 0) {
-          self.cells[i+self.widthInCells + 1].forEach(function(entity2){
-            checkForCollision(entity1, entity2, callback);
-          });
-        }
-      });
-    });
-  });
-}
-
-function checkForCollision(entity1, entity2, callback) {
-  var collides = !(entity1.x + entity1.width < entity2.x ||
-                   entity1.x > entity2.x + entity2.width ||
-                   entity1.y + entity1.height < entity2.y ||
-                   entity1.y > entity2.y + entity2.height);
-  if(collides) {
-    callback(entity1, entity2);
-  }
-}
-
-EntityManager.prototype.renderCells = function(ctx) {
-  for(var x = 0; x < this.widthInCells; x++) {
-    for(var y = 0; y < this.heightInCells; y++) {
-      ctx.strokeStyle = '#333333';
-      ctx.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
-    }
-  }
-}
-
-},{}],2:[function(require,module,exports){
 "use strict";
 
 /* Classes */
 const Game = require('./game');
-const EntityManager = require('./EntityManager');
 const Pipe = require('./pipe.js');
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
-var em = new EntityManager(canvas.width, canvas.height, 64);
-var startPipe = new Pipe({x: 0, y: 64}, 'assets/startPipe.png');
-var endingPipe = new Pipe({x: canvas.width - 64, y: 64}, 'assets/endingPipe.png');
+var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png');
+var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png');
 
 var level = 1;
 var score = 0;
@@ -185,6 +81,15 @@ function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   // TODO: Render the board
+  for(var y = 0; y < 12; y++) {
+   for(var x = 0; x < 15; x++) {
+       // draw the back of the card (212x212px)
+       ctx.fillStyle = "#3333ff";
+       ctx.fillRect(x * 74 + 3, y * 74 + 3, 69, 69);
+     }
+   }
+
+
    startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    ctx.fillStyle = "black";
@@ -193,7 +98,7 @@ function render(elapsedTime, ctx) {
 
 }
 
-},{"./EntityManager":1,"./game":3,"./pipe.js":4}],3:[function(require,module,exports){
+},{"./game":2,"./pipe.js":3}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -251,7 +156,7 @@ Game.prototype.loop = function(newTime) {
   this.frontCtx.drawImage(this.backBuffer, 0, 0);
 }
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 
 const MS_PER_FRAME = 1000/8;
@@ -296,10 +201,10 @@ Pipe.prototype.render = function(time, ctx) {
         // image
         this.spritesheet,
         // source rectangle
-        this.frame * 64, 64, this.width, this.height,
+        0, 0, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
     );
   }
 
-},{}]},{},[2]);
+},{}]},{},[1]);

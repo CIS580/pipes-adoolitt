@@ -42,7 +42,7 @@ Pipe.prototype.render = function(time, ctx) {
         // image
         this.spritesheet,
         // source rectangle
-        this.frame * 64, 64, this.width, this.height,
+        0, 0, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
     );

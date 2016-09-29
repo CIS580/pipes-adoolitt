@@ -2,15 +2,13 @@
 
 /* Classes */
 const Game = require('./game');
-const EntityManager = require('./EntityManager');
 const Pipe = require('./pipe.js');
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
-var em = new EntityManager(canvas.width, canvas.height, 64);
-var startPipe = new Pipe({x: 0, y: 64}, 'assets/startPipe.png');
-var endingPipe = new Pipe({x: canvas.width - 64, y: 64}, 'assets/endingPipe.png');
+var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png');
+var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png');
 
 var level = 1;
 var score = 0;
@@ -82,6 +80,15 @@ function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   // TODO: Render the board
+  for(var y = 0; y < 12; y++) {
+   for(var x = 0; x < 15; x++) {
+       // draw the back of the card (212x212px)
+       ctx.fillStyle = "#3333ff";
+       ctx.fillRect(x * 74 + 3, y * 74 + 3, 69, 69);
+     }
+   }
+
+
    startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    ctx.fillStyle = "black";

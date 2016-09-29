@@ -5,7 +5,7 @@ created for the Fall 2016 class of CIS 580 at Kansas State University.
 ## Requirements
 For this assignment, you will be creating a clone of [Pipe Mania](https://en.wikipedia.org/wiki/Pipe_Mania), which will need to meet the following requirements:
 
-1. The game world is divided into a regular grid, in which tiles representing pipes can be placed (10 points).
+1. The game world is divided into a regular grid, in which tiles representing pipes can be placed (10 points).Done 
 2. At the start of each level, an un-editable starting pipe and ending pipe appear.  If the player manages to connect these with pipes, the level is completed.  The start and end connection of the pipes should be available (10 points).
 3. At the start of the level, 'fluid' begins to flow from the start pipe.  If the fluid manages to reach the end of assembled pipes, the game is lost (10 points).
 4. The game score and level are represented on-screen (10 points).Done

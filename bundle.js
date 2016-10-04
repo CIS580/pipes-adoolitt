@@ -10,6 +10,8 @@ var game = new Game(canvas, update, render);
 var image = new Image();
 var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png');
 var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png');
+var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+var laidPipe = currentPipe;
 
 var level = 1;
 var score = 0;
@@ -21,12 +23,22 @@ var losing = new Audio('assets/losing.wav');
 image.src = 'assets/pipes.png';
 backgroundMusic.play();
 
+var currentIndex, currentX, currentY;
+
 canvas.onclick = function(event) {
   console.log(event.which);
   event.preventDefault();
   // TODO: Place or rotate pipe tile
   switch(event.which){
   		case 1:
+        currentX = event.offsetX;
+        currentY = event.offsetY;
+        var x = Math.floor((currentX + 3) / 74);
+        var y = Math.floor((currentY + 3) / 74);
+        laidPipe.x = x * 74 + 6;
+        laidPipe.y = y * 74 + 6;
+        console.log(laidPipe.x)
+        console.log(laidPipe.y);
         console.log("Left mouse click")
         backgroundMusic.pause();
         placingPipeDown.play();
@@ -92,6 +104,8 @@ function render(elapsedTime, ctx) {
 
    startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
+   currentPipe.render(elapsedTime, ctx);
+   laidPipe.render(elapsedTime,ctx);
    ctx.fillStyle = "black";
    ctx.fillText("Score:" + score, canvas.width - 80, 10);
    ctx.fillText("Level:" + level, 10, 10);

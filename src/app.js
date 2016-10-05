@@ -10,10 +10,14 @@ var image = new Image();
 var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png');
 var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png');
 var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
-var laidPipe = currentPipe;
+var laidPipe = [];
 
 var level = 1;
 var score = 0;
+var selection = 0;
+var rotatedPipeX;
+var rotatedPipeY;
+
 var backgroundMusic = new Audio('assets/background_music.mp3');
 var winning = new Audio('assets/winning.wav');
 var turningPipe = new Audio('assets/turningPope.wav');
@@ -34,18 +38,54 @@ canvas.onclick = function(event) {
         currentY = event.offsetY;
         var x = Math.floor((currentX + 3) / 74);
         var y = Math.floor((currentY + 3) / 74);
-        laidPipe.x = x * 74 + 6;
-        laidPipe.y = y * 74 + 6;
-        console.log(laidPipe.x)
-        console.log(laidPipe.y);
-        console.log("Left mouse click")
+        currentPipe.x = x * 74 + 6;
+        currentPipe.y = y * 74 + 6;
         backgroundMusic.pause();
         placingPipeDown.play();
+
+        laidPipe.push(new Pipe({
+          x: currentPipe.x,
+          y: currentPipe.y,
+        }, currentPipe.spritesheet.src));
+
+
+        var selection = Math.floor(Math.random() * 10 + 1);
+        console.log(selection);
+        if(selection <= 4)
+        {
+          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+        }
+        else if(selection <= 8)
+        {
+          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+        }
+        else
+        {
+          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+        }
   			break;
   		case 3:
         console.log("Right mouse click.")
         backgroundMusic.pause();
         turningPipe.play();
+
+        //find the pipe selected
+        currentX = event.offsetX;
+        currentY = event.offsetY;
+        var x = Math.floor((currentX + 3) / 74);
+        var y = Math.floor((currentY + 3) / 74);
+        rotatedPipeX = x * 74 + 6;
+        rotatedPipeY = y * 74 + 6;
+        //search through the pipes to find it in the array
+        laidPipe.forEach(function(laidPipe){
+          if(laidPipe.x == rotatedPipeX && rotatedPipeY == laidPipe.y && canRotate)
+          {
+            laidPipe.translate(-laidPipe.x,-laidPipe.y);
+            laidPipe.rotate(PI/2);
+            laidPipe.translate(rotatedPipeX,rotatedPipeY);
+            return
+          }
+        })
   		 break;
   		default : console.log('aqui');
     }
@@ -104,7 +144,7 @@ function render(elapsedTime, ctx) {
    startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    currentPipe.render(elapsedTime, ctx);
-   laidPipe.render(elapsedTime,ctx);
+   laidPipe.forEach(function(pipe){pipe.render(elapsedTime, ctx);});
    ctx.fillStyle = "black";
    ctx.fillText("Score:" + score, canvas.width - 80, 10);
    ctx.fillText("Level:" + level, 10, 10);

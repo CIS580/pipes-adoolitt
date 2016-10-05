@@ -21,6 +21,7 @@ function Pipe(position, image) {
   this.spritesheet.src = encodeURI(image);
   this.timer = 0;
   this.frame = 0;
+  this.canRotate = true;
 }
 
 

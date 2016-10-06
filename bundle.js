@@ -8,9 +8,9 @@ const Pipe = require('./pipe.js');
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
-var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png');
-var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png');
-var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png', 0);
+var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png', 0);
+var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 0);
 var laidPipe = [];
 
 var level = 1;
@@ -21,7 +21,7 @@ var rotatedPipeY;
 
 var backgroundMusic = new Audio('assets/background_music.mp3');
 var winning = new Audio('assets/winning.wav');
-var turningPipe = new Audio('assets/turningPope.wav');
+var turningPipe = new Audio('assets/turningPipe.wav');
 var placingPipeDown = new Audio('assets/placingPipeDown.wav');
 var losing = new Audio('assets/losing.wav');
 image.src = 'assets/pipes.png';
@@ -39,58 +39,85 @@ canvas.onclick = function(event) {
         currentY = event.offsetY;
         var x = Math.floor((currentX + 3) / 74);
         var y = Math.floor((currentY + 3) / 74);
-        currentPipe.x = x * 74 + 6;
-        currentPipe.y = y * 74 + 6;
-        backgroundMusic.pause();
-        placingPipeDown.play();
-
-        laidPipe.push(new Pipe({
-          x: currentPipe.x,
-          y: currentPipe.y,
-        }, currentPipe.spritesheet.src));
-
-
-        var selection = Math.floor(Math.random() * 10 + 1);
-        console.log(selection);
-        if(selection <= 4)
-        {
-          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
-        }
-        else if(selection <= 8)
-        {
-          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
-        }
-        else
-        {
-          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
-        }
-  			break;
-  		case 3:
-        console.log("Right mouse click.")
-        backgroundMusic.pause();
-        turningPipe.play();
-
-        //find the pipe selected
-        currentX = event.offsetX;
-        currentY = event.offsetY;
-        var x = Math.floor((currentX + 3) / 74);
-        var y = Math.floor((currentY + 3) / 74);
-        rotatedPipeX = x * 74 + 6;
-        rotatedPipeY = y * 74 + 6;
-        //search through the pipes to find it in the array
+        var validMove = true;
+        var tempX = x * 74 + 6;
+        var tempY = y * 74 + 6;
         laidPipe.forEach(function(laidPipe){
-          if(laidPipe.x == rotatedPipeX && rotatedPipeY == laidPipe.y && canRotate)
+          if(tempX == laidPipe.x && tempY == laidPipe.y)
           {
-            laidPipe.translate(-laidPipe.x,-laidPipe.y);
-            laidPipe.rotate(PI/2);
-            laidPipe.translate(rotatedPipeX,rotatedPipeY);
-            return
+            validMove = false;
           }
-        })
-  		 break;
+        });
+
+        if(validMove)
+        {
+          backgroundMusic.pause();
+          placingPipeDown.play();
+          currentPipe.x = tempX;
+          currentPipe.y = tempY;
+          laidPipe.push(new Pipe({
+            x: currentPipe.x,
+            y: currentPipe.y,
+          }, currentPipe.spritesheet.src, currentPipe.maxFrame));
+
+
+          var selection = Math.floor(Math.random() * 10 + 1);
+          if(selection <= 4)
+          {
+            currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1);
+            currentPipe.startPipe = true;
+          }
+          else if(selection <= 8)
+          {
+            currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png', 3);
+            currentPipe.CurvedPipe = true;
+          }
+          else
+          {
+            currentPipe = new Pipe({x: 5, y: 5}, 'assets/fourWayPipe.png', 0);
+            currentPipe.fourWayPipe = true;
+          }
+        }
+    		break;
   		default : console.log('aqui');
     }
   }
+
+
+canvas.oncontextmenu = function(event)
+{
+  event.preventDefault();
+  console.log("Right mouse click.")
+
+  //find the pipe selected
+  currentX = event.offsetX;
+  currentY = event.offsetY;
+  var x = Math.floor((currentX + 3) / 74);
+  var y = Math.floor((currentY + 3) / 74);
+  rotatedPipeX = x * 74 + 6;
+  rotatedPipeY = y * 74 + 6;
+
+  //search through the pipes to find it in the array
+  laidPipe.forEach(function(laidPipe){
+    if(laidPipe.x == rotatedPipeX && rotatedPipeY == laidPipe.y && laidPipe.canRotate)
+    {
+      console.log(laidPipe.frame);
+      console.log(laidPipe.maxFrame);
+      if(laidPipe.frame == laidPipe.maxFrame)
+      {
+        backgroundMusic.pause();
+        turningPipe.play();
+        laidPipe.frame = 0;
+      }
+      else
+      {
+        backgroundMusic.pause();
+        turningPipe.play();
+        laidPipe.frame++;
+      }
+    }
+  })
+}
 
 /**
  * @function masterLoop
@@ -115,7 +142,7 @@ masterLoop(performance.now());
 function update(elapsedTime) {
 
   // TODO: Advance the fluid
-  if(placingPipeDown.ended && backgroundMusic.paused)
+  if(placingPipeDown.ended && backgroundMusic.paused || turningPipe.ended && backgroundMusic.paused )
   {
     console.log("Got in the if statement.");
     backgroundMusic.play();
@@ -133,10 +160,10 @@ function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   // TODO: Render the board
-  for(var y = 0; y < 12; y++) {
+  for(var y = 0; y < 11; y++) {
    for(var x = 0; x < 15; x++) {
        // draw the back of the card (212x212px)
-       ctx.fillStyle = "#3333ff";
+       ctx.fillStyle = "white";
        ctx.fillRect(x * 74 + 3, y * 74 + 3, 69, 69);
      }
    }
@@ -225,7 +252,7 @@ module.exports = exports = Pipe;
  * Creates a new player object
  * @param {Postition} position object specifying an x and y
  */
-function Pipe(position, image) {
+function Pipe(position, image, totalframes) {
   this.x = position.x;
   this.y = position.y;
   this.width  = 64;
@@ -235,8 +262,11 @@ function Pipe(position, image) {
   this.timer = 0;
   this.frame = 0;
   this.canRotate = true;
+  this.CurvedPipe = false;
+  this.startPipe = false;
+  this.fourWayPipe = false;
+  this.maxFrame = totalframes;
 }
-
 
 /**
  * @function updates the player object
@@ -256,7 +286,7 @@ Pipe.prototype.render = function(time, ctx) {
         // image
         this.spritesheet,
         // source rectangle
-        0, 0, this.width, this.height,
+        this.frame * 64, 0, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
     );

@@ -12,7 +12,7 @@ module.exports = exports = Pipe;
  * Creates a new player object
  * @param {Postition} position object specifying an x and y
  */
-function Pipe(position, image) {
+function Pipe(position, image, totalframes) {
   this.x = position.x;
   this.y = position.y;
   this.width  = 64;
@@ -22,8 +22,11 @@ function Pipe(position, image) {
   this.timer = 0;
   this.frame = 0;
   this.canRotate = true;
+  this.CurvedPipe = false;
+  this.startPipe = false;
+  this.fourWayPipe = false;
+  this.maxFrame = totalframes;
 }
-
 
 /**
  * @function updates the player object
@@ -43,7 +46,7 @@ Pipe.prototype.render = function(time, ctx) {
         // image
         this.spritesheet,
         // source rectangle
-        0, 0, this.width, this.height,
+        this.frame * 64, 0, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
     );

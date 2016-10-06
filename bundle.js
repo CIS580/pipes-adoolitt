@@ -12,12 +12,15 @@ var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png', 0);
 var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png', 0);
 var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 0);
 var laidPipe = [];
-
+currentPipe.startPipe = true;
 var level = 1;
 var score = 0;
 var selection = 0;
 var rotatedPipeX;
 var rotatedPipeY;
+
+var startingX;
+var startingY;
 
 var backgroundMusic = new Audio('assets/background_music.mp3');
 var winning = new Audio('assets/winning.wav');
@@ -55,6 +58,10 @@ canvas.onclick = function(event) {
           placingPipeDown.play();
           currentPipe.x = tempX;
           currentPipe.y = tempY;
+          console.log(currentPipe.x);
+          console.log(currentPipe.startPipe)
+          console.log(currentPipe.CurvedPipe);
+          console.log(currentPipe.fourWayPipe);
           laidPipe.push(new Pipe({
             x: currentPipe.x,
             y: currentPipe.y,
@@ -142,10 +149,56 @@ masterLoop(performance.now());
 function update(elapsedTime) {
 
   // TODO: Advance the fluid
-  if(placingPipeDown.ended && backgroundMusic.paused || turningPipe.ended && backgroundMusic.paused )
+  if(placingPipeDown.ended && backgroundMusic.paused)
   {
     console.log("Got in the if statement.");
     backgroundMusic.play();
+  }
+  startingX = 80;
+  startingY = 80;
+  laidPipe.forEach(function(pipe)
+  {
+    if(pipe.startPipe && pipe.x == startingX && pipe.y == startingY)
+    {
+      console.log("Inside the straight pipe");
+      if(pipe.frame == 0)
+      {
+        startingX += 74;
+      }
+      else
+      {
+        startingY -= 74;
+      }
+    }
+    else if(pipe.CurvedPipe && pipe.x == startingX && pipe.y == startingY)
+    {
+      console.log("Inside the curved pipe");
+      if(pipe.frame == 0)
+      {
+        startingX += 74;
+      }
+      else if(pipe.frame == 1)
+      {
+        startingY -= 74;
+      }
+      else if(pipe.frame == 2)
+      {
+        startingX += 74;
+      }
+      else
+      {
+        startingY += 74;
+      }
+    }
+    else
+    {
+
+    }
+  });
+  if(startingY == endingPipe.y && startingX == endingPipe.x)
+  {
+    console.log("You won");
+    winning.play();
   }
 }
 

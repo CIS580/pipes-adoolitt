@@ -57,11 +57,11 @@ canvas.onclick = function(event) {
         }
         else if(selection <= 8)
         {
-          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+          currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png');
         }
         else
         {
-          currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png');
+          currentPipe = new Pipe({x: 5, y: 5}, 'assets/fourWayPipe.png');
         }
   			break;
   		case 3:

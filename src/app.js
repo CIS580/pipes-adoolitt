@@ -28,8 +28,8 @@ var fluid =
 {
 	x: 6,
 	y: 80,
-	speed: 1/50,
-  direction: 0,
+	speed: 1/500,
+  direction: 2,
   fillPercentage: 0
 }
 
@@ -194,9 +194,12 @@ function update(elapsedTime) {
     backgroundMusic.play();
   }
 
-    fluid.fillPercentage = fluid.speed * elapsedTime;
+    fluid.fillPercentage += fluid.speed * elapsedTime;
+    console.log(fluid.direction);
+    /*
     if(fillPercentage >= 74 && !startPipe.fullOfWater)
     {
+      console.log("Inside the first if statement in fluid.")
       fluid.x = 80;
       fluid.y = 80;
       startPipe.fullOfWater = true;
@@ -210,6 +213,7 @@ function update(elapsedTime) {
           }
       });
     }
+
     if(fillPercentage >= 74)
     {
       laidPipe.forEach(function(pipe)
@@ -279,6 +283,7 @@ function update(elapsedTime) {
       direction = 2;
       fluid.speed += 5/50;
     }
+    */
 
 }
 
@@ -301,21 +306,29 @@ function render(elapsedTime, ctx) {
      }
    }
 
-
-   startPipe.render(elapsedTime, ctx);
+   //startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    currentPipe.render(elapsedTime, ctx);
-   if(fluid.direction = 1)
+   ctx.fillStyle = "blue";
+   if(fluid.direction == 1)
    {
-     ctx.fillRect(fluid.x, fluid.y, fluid.x, fluid.fillPercentage);
+     console.log("In fluid direction 1");
+     ctx.fillRect(fluid.x, fluid.y, 64, fluid.fillPercentage);
    }
-   else if(fluid.direction == 2 || fluid.direction == 4)
+   else if(fluid.direction == 2)
    {
-     ctx.fillRect(fluid.x, fluid.y, fluid.fillPercentage, fluid.y);
+     console.log("In fluid direction 2");
+     ctx.fillRect(fluid.x, fluid.y, fluid.fillPercentage, 64);
+   }
+   else if(fluid.direction == 4)
+   {
+     console.log("In fluid direction 4");
+     ctx.fillRect(fluid.x + 64, fluid.y, (- fluid.fillPercentage), 64);
    }
    else
    {
-     ctx.fillRect(fluid.x, fluid.y * fluid.fillPercentage, fluid.x, fluid.y);
+     console.log("In fluid direction 3");
+     ctx.fillRect(fluid.x, (fluid.y + 64), 64, ( -fluid.fillPercentage ));
    }
    laidPipe.forEach(function(pipe)
    {

@@ -306,9 +306,6 @@ function render(elapsedTime, ctx) {
      }
    }
 
-   startPipe.render(elapsedTime, ctx);
-   endingPipe.render(elapsedTime, ctx);
-   currentPipe.render(elapsedTime, ctx);
    ctx.fillStyle = "blue";
    if(fluid.direction == 1)
    {
@@ -330,6 +327,11 @@ function render(elapsedTime, ctx) {
      console.log("In fluid direction 3");
      ctx.fillRect(fluid.x, (fluid.y + 64), 64, ( -fluid.fillPercentage ));
    }
+
+   startPipe.render(elapsedTime, ctx);
+   endingPipe.render(elapsedTime, ctx);
+   currentPipe.render(elapsedTime, ctx);
+   
    laidPipe.forEach(function(pipe)
    {
      if(pipe.fullOfWater)

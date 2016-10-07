@@ -306,7 +306,7 @@ function render(elapsedTime, ctx) {
      }
    }
 
-   //startPipe.render(elapsedTime, ctx);
+   startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    currentPipe.render(elapsedTime, ctx);
    ctx.fillStyle = "blue";

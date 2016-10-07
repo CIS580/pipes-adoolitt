@@ -7,19 +7,31 @@ const Pipe = require('./pipe.js');
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var image = new Image();
-var startPipe = new Pipe({x: 5, y: 79}, 'assets/startPipe.png', 0);
-var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png', 0);
-var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 0);
+var startPipe = new Pipe({x: 5, y: 79}, 'assets/endingPipe.png', 0, 4, 2);
+var endingPipe = new Pipe({x: canvas.width - 62, y: 79}, 'assets/endingPipe.png', 0, 4, 2);
+var currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1, 4, 2);
+
 var laidPipe = [];
 currentPipe.startPipe = true;
+startPipe.canRotate = false;
+endingPipe.canRotate = false;
+
+  var validMove;
+
 var level = 1;
 var score = 0;
 var selection = 0;
 var rotatedPipeX;
 var rotatedPipeY;
 
-var startingX;
-var startingY;
+var fluid =
+{
+	x: 6,
+	y: 80,
+	speed: 1/50,
+  direction: 0,
+  fillPercentage: 0
+}
 
 var backgroundMusic = new Audio('assets/background_music.mp3');
 var winning = new Audio('assets/winning.wav');
@@ -32,7 +44,6 @@ backgroundMusic.play();
 var currentIndex, currentX, currentY;
 
 canvas.onclick = function(event) {
-  console.log(event.which);
   event.preventDefault();
   // TODO: Place or rotate pipe tile
   switch(event.which){
@@ -41,11 +52,11 @@ canvas.onclick = function(event) {
         currentY = event.offsetY;
         var x = Math.floor((currentX + 3) / 74);
         var y = Math.floor((currentY + 3) / 74);
-        var validMove = true;
+        validMove = true;
         var tempX = x * 74 + 6;
         var tempY = y * 74 + 6;
         laidPipe.forEach(function(laidPipe){
-          if(tempX == laidPipe.x && tempY == laidPipe.y)
+          if(tempX == laidPipe.x && tempY == laidPipe.y || tempX == 6 && tempY == 80 || tempX == 968 && tempY == 80 )
           {
             validMove = false;
           }
@@ -57,30 +68,26 @@ canvas.onclick = function(event) {
           placingPipeDown.play();
           currentPipe.x = tempX;
           currentPipe.y = tempY;
-          console.log(currentPipe.x);
-          console.log(currentPipe.startPipe)
-          console.log(currentPipe.CurvedPipe);
-          console.log(currentPipe.fourWayPipe);
           laidPipe.push(new Pipe({
             x: currentPipe.x,
             y: currentPipe.y,
-          }, currentPipe.spritesheet.src, currentPipe.maxFrame));
+          }, currentPipe.spritesheet.src, currentPipe.maxFrame, currentPipe.startDirection,currentPipe.endDirection));
 
 
           var selection = Math.floor(Math.random() * 10 + 1);
           if(selection <= 4)
           {
-            currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1);
+            currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1, 4, 2);
             currentPipe.startPipe = true;
           }
           else if(selection <= 8)
           {
-            currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png', 3);
+            currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png', 3, 3, 2);
             currentPipe.CurvedPipe = true;
           }
           else
           {
-            currentPipe = new Pipe({x: 5, y: 5}, 'assets/fourWayPipe.png', 0);
+            currentPipe = new Pipe({x: 5, y: 5}, 'assets/fourWayPipe.png', 0, 0, 0);
             currentPipe.fourWayPipe = true;
           }
         }
@@ -107,21 +114,54 @@ canvas.oncontextmenu = function(event)
   laidPipe.forEach(function(laidPipe){
     if(laidPipe.x == rotatedPipeX && rotatedPipeY == laidPipe.y && laidPipe.canRotate)
     {
-      console.log(laidPipe.frame);
-      console.log(laidPipe.maxFrame);
       if(laidPipe.frame == laidPipe.maxFrame)
       {
         backgroundMusic.pause();
         turningPipe.play();
         laidPipe.frame = 0;
+        if(laidPipe.startPipe)
+        {
+          laidPipe.startDirection = 4;
+          laidPipe.endDirection = 2;
+        }
+        else
+        {
+          laidPipe.startDirection = 3;
+          laidPipe.endDirection = 2;
+        }
       }
       else
       {
         backgroundMusic.pause();
         turningPipe.play();
         laidPipe.frame++;
+        if(laidPipe.startPipe)
+        {
+          laidPipe.startDirection = 1;
+          laidPipe.endDirection = 3;
+        }
+        else
+        {
+          if(laidPipe.frame == 1)
+          {
+            laidPipe.startDirection = 3;
+            laidPipe.endDirection = 4;
+          }
+          else if (laidPipe.frame == 2)
+          {
+            laidPipe.startDirection = 1;
+            laidPipe.endDirection = 2;
+          }
+          else
+          {
+            laidPipe.startDirection = 1;
+            laidPipe.endDirection = 4;
+          }
+        }
       }
     }
+    console.log(laidPipe.startDirection);
+    console.log(laidPipe.endDirection);
   })
 }
 
@@ -153,52 +193,93 @@ function update(elapsedTime) {
     console.log("Got in the if statement.");
     backgroundMusic.play();
   }
-  startingX = 80;
-  startingY = 80;
-  laidPipe.forEach(function(pipe)
-  {
-    if(pipe.startPipe && pipe.x == startingX && pipe.y == startingY)
-    {
-      console.log("Inside the straight pipe");
-      if(pipe.frame == 0)
-      {
-        startingX += 74;
-      }
-      else
-      {
-        startingY -= 74;
-      }
-    }
-    else if(pipe.CurvedPipe && pipe.x == startingX && pipe.y == startingY)
-    {
-      console.log("Inside the curved pipe");
-      if(pipe.frame == 0)
-      {
-        startingX += 74;
-      }
-      else if(pipe.frame == 1)
-      {
-        startingY -= 74;
-      }
-      else if(pipe.frame == 2)
-      {
-        startingX += 74;
-      }
-      else
-      {
-        startingY += 74;
-      }
-    }
-    else
-    {
 
+    fluid.fillPercentage = fluid.speed * elapsedTime;
+    if(fillPercentage >= 74 && !startPipe.fullOfWater)
+    {
+      fluid.x = 80;
+      fluid.y = 80;
+      startPipe.fullOfWater = true;
+      fluid.fillPercentage = 0;
+      laidPipe.forEach(function(pipe)
+      {
+          if(pipe.x == fluid.x && pipe.y == fluid.y && pipe.startDirection == 4)
+          {
+            fluid.direction = pipe.endDirection;
+            pipe.canRotate = false;
+          }
+      });
     }
-  });
-  if(startingY == endingPipe.y && startingX == endingPipe.x)
-  {
-    console.log("You won");
-    winning.play();
-  }
+    if(fillPercentage >= 74)
+    {
+      laidPipe.forEach(function(pipe)
+      {
+        if(fluid.x == pipe.x && fluid.y == pipe.y)
+        {
+          pipe.fullOfWater = true;
+        }
+      });
+      if(fluid.direction = 1)
+      {
+        fluid.y -= 74;
+      }
+      else if(fluid.direction = 2)
+      {
+        fluid.x += 74
+      }
+      else if(fluid.direction = 3)
+      {
+        fluid.y += 74
+      }
+      else
+      {
+        fluid.x -= 74;
+      }
+      laidPipe.forEach(function(pipe)
+      {
+          if(fluid.x == pipe.x && fluid.y == pipe.x)
+          {
+            if(fluid.direction == 2 && pipe.startDirection == 4)
+            {
+              fluid.direction = pipe.endDirection;
+              pipe.canRotate = false;
+            }
+            else if (fluid.direction == 1 && pipe.endDirection == 3 && pipe.startPipe)
+            {
+              fluid.direction = pipe.startDirection;
+              pipe.canRotate = false
+            }
+            else if (fluid.direction == 3 && pipe.startDirection == 1)
+            {
+              fluid.direction = pipe.endDirection;
+              pipe.canRotate = false;
+            }
+            else if(fluid.direction == 4 && pipe.startDirection == 2)
+            {
+                fluid.direction = pipe.endDirection;
+                pipe.canRotate = false;
+            }
+            else
+            {
+              losing.play();
+              validMove = false;
+            }
+          }
+      });
+    }
+    if(fluid.x >= 968 && fluid.y == 80 )
+    {
+      winning.play();
+      score += 100;
+      level++;
+      var startOver = [];
+      laidPipe = startOver;
+      fluid.x = 6;
+      fluid.y = 80;
+      direction = 2;
+      fluid.speed += 5/50;
+    }
+
 }
 
 /**
@@ -224,7 +305,26 @@ function render(elapsedTime, ctx) {
    startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    currentPipe.render(elapsedTime, ctx);
-   laidPipe.forEach(function(pipe){pipe.render(elapsedTime, ctx);});
+   if(fluid.direction = 1)
+   {
+     ctx.fillRect(fluid.x, fluid.y, fluid.x, fluid.fillPercentage);
+   }
+   else if(fluid.direction == 2 || fluid.direction == 4)
+   {
+     ctx.fillRect(fluid.x, fluid.y, fluid.fillPercentage, fluid.y);
+   }
+   else
+   {
+     ctx.fillRect(fluid.x, fluid.y * fluid.fillPercentage, fluid.x, fluid.y);
+   }
+   laidPipe.forEach(function(pipe)
+   {
+     if(pipe.fullOfWater)
+     {
+       ctx.fillRect(pipe.x,pipe.y, pipe.width, pipe.height);
+     }
+     pipe.render(elapsedTime, ctx);
+   });
    ctx.fillStyle = "black";
    ctx.fillText("Score:" + score, canvas.width - 80, 10);
    ctx.fillText("Level:" + level, 10, 10);

@@ -12,7 +12,7 @@ module.exports = exports = Pipe;
  * Creates a new player object
  * @param {Postition} position object specifying an x and y
  */
-function Pipe(position, image, totalframes) {
+function Pipe(position, image, totalframes, startDirection, endDirection) {
   this.x = position.x;
   this.y = position.y;
   this.width  = 64;
@@ -26,6 +26,9 @@ function Pipe(position, image, totalframes) {
   this.startPipe = false;
   this.fourWayPipe = false;
   this.maxFrame = totalframes;
+  this.startDirection = startDirection;
+  this.endDirection = endDirection;
+  this.fullOfWater = false;
 }
 
 /**

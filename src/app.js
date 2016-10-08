@@ -16,8 +16,8 @@ currentPipe.startPipe = true;
 startPipe.canRotate = false;
 endingPipe.canRotate = false;
 
-  var validMove;
-
+var validMove;
+var gameOver = false;
 var level = 1;
 var score = 0;
 var selection = 0;
@@ -30,7 +30,8 @@ var fluid =
 	y: 80,
 	speed: 1/500,
   direction: 2,
-  fillPercentage: 0
+  fillPercentage: 0,
+  startingFlow: 4
 }
 
 var backgroundMusic = new Audio('assets/background_music.mp3');
@@ -64,6 +65,8 @@ canvas.onclick = function(event) {
 
         if(validMove)
         {
+          console.log(currentPipe.startDirection);
+          console.log(currentPipe.endDirection);
           backgroundMusic.pause();
           placingPipeDown.play();
           currentPipe.x = tempX;
@@ -80,7 +83,7 @@ canvas.onclick = function(event) {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1, 4, 2);
             currentPipe.startPipe = true;
           }
-          else if(selection <= 8)
+          else if(selection <= 10)
           {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png', 3, 3, 2);
             currentPipe.CurvedPipe = true;
@@ -144,8 +147,8 @@ canvas.oncontextmenu = function(event)
         {
           if(laidPipe.frame == 1)
           {
-            laidPipe.startDirection = 3;
-            laidPipe.endDirection = 4;
+            laidPipe.startDirection = 4;
+            laidPipe.endDirection = 3;
           }
           else if (laidPipe.frame == 2)
           {
@@ -154,8 +157,8 @@ canvas.oncontextmenu = function(event)
           }
           else
           {
-            laidPipe.startDirection = 1;
-            laidPipe.endDirection = 4;
+            laidPipe.startDirection = 4;
+            laidPipe.endDirection = 1;
           }
         }
       }
@@ -195,26 +198,37 @@ function update(elapsedTime) {
   }
 
     fluid.fillPercentage += fluid.speed * elapsedTime;
-    console.log(fluid.direction);
-    /*
-    if(fillPercentage >= 74 && !startPipe.fullOfWater)
+    if(fluid.fillPercentage >= 64 && !startPipe.fullOfWater)
     {
-      console.log("Inside the first if statement in fluid.")
       fluid.x = 80;
       fluid.y = 80;
       startPipe.fullOfWater = true;
       fluid.fillPercentage = 0;
+      console.log(laidPipe);
+      if(laidPipe.length == 0)
+      {
+        gameOver = true;
+      }
       laidPipe.forEach(function(pipe)
       {
+        console.log("In the list of pipes.")
           if(pipe.x == fluid.x && pipe.y == fluid.y && pipe.startDirection == 4)
           {
             fluid.direction = pipe.endDirection;
+            fluid.startingFlow = pipe.startDirection;
+            console.log(fluid.direction);
+            console.log(pipe.endDirection);
             pipe.canRotate = false;
+            gameOver = false;
+          }
+          else
+          {
+              gameOver = true;
           }
       });
     }
-
-    if(fillPercentage >= 74)
+    console.log(gameOver);
+    if(fluid.fillPercentage >= 64 && startPipe.fullOfWater)
     {
       laidPipe.forEach(function(pipe)
       {
@@ -223,15 +237,15 @@ function update(elapsedTime) {
           pipe.fullOfWater = true;
         }
       });
-      if(fluid.direction = 1)
+      if(fluid.direction == 1)
       {
         fluid.y -= 74;
       }
-      else if(fluid.direction = 2)
+      else if(fluid.direction == 2)
       {
         fluid.x += 74
       }
-      else if(fluid.direction = 3)
+      else if(fluid.direction == 3)
       {
         fluid.y += 74
       }
@@ -239,40 +253,76 @@ function update(elapsedTime) {
       {
         fluid.x -= 74;
       }
+      console.log(fluid.direction);
       laidPipe.forEach(function(pipe)
       {
-          if(fluid.x == pipe.x && fluid.y == pipe.x)
+          if(fluid.x == pipe.x && fluid.y == pipe.y)
           {
+            console.log("Found pipe");
             if(fluid.direction == 2 && pipe.startDirection == 4)
             {
+              console.log("Entered in first if");
               fluid.direction = pipe.endDirection;
+              fluid.startingFlow = pipe.startDirection;
               pipe.canRotate = false;
+              fluid.fillPercentage = 0;
+              gameOver = false;
             }
             else if (fluid.direction == 1 && pipe.endDirection == 3 && pipe.startPipe)
             {
+              console.log("Entered in second if");
               fluid.direction = pipe.startDirection;
+              fluid.startingFlow = pipe.startDirection;
               pipe.canRotate = false
+              fluid.fillPercentage = 0;
+              gameOver = false;
             }
             else if (fluid.direction == 3 && pipe.startDirection == 1)
             {
+              console.log("enterd in third if");
+              fluid.startingFlow = pipe.startDirection;
               fluid.direction = pipe.endDirection;
               pipe.canRotate = false;
+              gameOver = false;
+              fluid.fillPercentage = 0;
             }
             else if(fluid.direction == 4 && pipe.startDirection == 2)
             {
+              console.log("entered in forth if");
                 fluid.direction = pipe.endDirection;
+                fluid.startingFlow = pipe.startDirection;
                 pipe.canRotate = false;
+                fluid.fillPercentage = 0;
+                gameOver = false;
+            }
+            else if(fluid.direction == 1 && pipe.startDirection == 3)
+            {
+              fluid.direction = pipe.endDirection;
+              fluid.startingFlow = pipe.startDirection;
+              pipe.canRotate = false;
+              fluid.fillPercentage = 0;
+              gameOver = false;
             }
             else
             {
-              losing.play();
-              validMove = false;
+
             }
+          }
+          else
+          {
+            gameOver = true;
           }
       });
     }
+    if(gameOver)
+    {
+      losing.play();
+      fluid.fillPercentage = o;
+      validMove = false;
+    }
     if(fluid.x >= 968 && fluid.y == 80 )
     {
+      console.log("Got into the winning condition");
       winning.play();
       score += 100;
       level++;
@@ -283,8 +333,6 @@ function update(elapsedTime) {
       direction = 2;
       fluid.speed += 5/50;
     }
-    */
-
 }
 
 /**
@@ -307,31 +355,34 @@ function render(elapsedTime, ctx) {
    }
 
    ctx.fillStyle = "blue";
-   if(fluid.direction == 1)
+   if(fluid.startingFlow == 1)
    {
-     console.log("In fluid direction 1");
+     //console.log("In fluid direction 1");
      ctx.fillRect(fluid.x, fluid.y, 64, fluid.fillPercentage);
    }
-   else if(fluid.direction == 2)
+   else if(fluid.startingFlow == 4)
    {
-     console.log("In fluid direction 2");
+     //console.log("In fluid direction 2");
      ctx.fillRect(fluid.x, fluid.y, fluid.fillPercentage, 64);
    }
-   else if(fluid.direction == 4)
+   else if(fluid.startingFlow == 2)
    {
-     console.log("In fluid direction 4");
+    // console.log("In fluid direction 4");
      ctx.fillRect(fluid.x + 64, fluid.y, (- fluid.fillPercentage), 64);
    }
    else
    {
-     console.log("In fluid direction 3");
+     //console.log("In fluid direction 3");
      ctx.fillRect(fluid.x, (fluid.y + 64), 64, ( -fluid.fillPercentage ));
    }
 
+   if(startPipe.fullOfWater)
+   {
+     ctx.fillRect(startPipe.x, startPipe.y, startPipe.width, startPipe.height);
+   }
    startPipe.render(elapsedTime, ctx);
    endingPipe.render(elapsedTime, ctx);
    currentPipe.render(elapsedTime, ctx);
-   
    laidPipe.forEach(function(pipe)
    {
      if(pipe.fullOfWater)

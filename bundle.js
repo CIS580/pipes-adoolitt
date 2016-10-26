@@ -16,7 +16,8 @@ var laidPipe = [];
 currentPipe.startPipe = true;
 startPipe.canRotate = false;
 endingPipe.canRotate = false;
-
+var notFound = true;
+var win = true;
 var validMove;
 var gameOver = false;
 var level = 1;
@@ -29,7 +30,7 @@ var fluid =
 {
 	x: 6,
 	y: 80,
-	speed: 1/500,
+	speed: 1/50,
   direction: 2,
   fillPercentage: 0,
   startingFlow: 4
@@ -66,8 +67,8 @@ canvas.onclick = function(event) {
 
         if(validMove)
         {
-          console.log(currentPipe.startDirection);
-          console.log(currentPipe.endDirection);
+          //console.log(currentPipe.startDirection);
+          //console.log(currentPipe.endDirection);
           backgroundMusic.pause();
           placingPipeDown.play();
           currentPipe.x = tempX;
@@ -77,8 +78,8 @@ canvas.onclick = function(event) {
             y: currentPipe.y,
           }, currentPipe.spritesheet.src, currentPipe.maxFrame, currentPipe.startDirection,currentPipe.endDirection));
 
-
-          var selection = Math.floor(Math.random() * 10 + 1);
+					var selection = 1;
+          //var selection = Math.floor(Math.random() * 10 + 1);
           if(selection <= 4)
           {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1, 4, 2);
@@ -104,7 +105,7 @@ canvas.onclick = function(event) {
 canvas.oncontextmenu = function(event)
 {
   event.preventDefault();
-  console.log("Right mouse click.")
+  //console.log("Right mouse click.")
 
   //find the pipe selected
   currentX = event.offsetX;
@@ -164,8 +165,8 @@ canvas.oncontextmenu = function(event)
         }
       }
     }
-    console.log(laidPipe.startDirection);
-    console.log(laidPipe.endDirection);
+    //console.log(laidPipe.startDirection);
+    //console.log(laidPipe.endDirection);
   })
 }
 
@@ -194,25 +195,26 @@ function update(elapsedTime) {
   // TODO: Advance the fluid
   if(placingPipeDown.ended && backgroundMusic.paused)
   {
-    console.log("Got in the if statement.");
+    //console.log("Got in the if statement.");
     backgroundMusic.play();
   }
 
     fluid.fillPercentage += fluid.speed * elapsedTime;
-    if(fluid.fillPercentage >= 64 && !startPipe.fullOfWater)
+    if(fluid.fillPercentage >= 64 && !startPipe.fullOfWater && win)
     {
+			win = false;
       fluid.x = 80;
       fluid.y = 80;
       startPipe.fullOfWater = true;
       fluid.fillPercentage = 0;
-      console.log(laidPipe);
+      //console.log(laidPipe);
       if(laidPipe.length == 0)
       {
         gameOver = true;
       }
       laidPipe.forEach(function(pipe)
       {
-        console.log("In the list of pipes.")
+        //console.log("In the list of pipes.")
           if(pipe.x == fluid.x && pipe.y == fluid.y && pipe.startDirection == 4)
           {
             fluid.direction = pipe.endDirection;
@@ -220,17 +222,17 @@ function update(elapsedTime) {
             console.log(fluid.direction);
             console.log(pipe.endDirection);
             pipe.canRotate = false;
-            gameOver = false;
-          }
-          else
-          {
-              gameOver = true;
+            notFound = false;
           }
       });
+			if(notFound)
+			{
+				gameOver = true;
+			}
     }
-    console.log(gameOver);
-    if(fluid.fillPercentage >= 64 && startPipe.fullOfWater)
+    if(fluid.fillPercentage >= 64 && startPipe.fullOfWater && !win)
     {
+			console.log(startPipe.fullOfWater);
       laidPipe.forEach(function(pipe)
       {
         if(fluid.x == pipe.x && fluid.y == pipe.y)
@@ -254,7 +256,8 @@ function update(elapsedTime) {
       {
         fluid.x -= 74;
       }
-      console.log(fluid.direction);
+      //console.log(fluid.direction);
+			notFound = true;
       laidPipe.forEach(function(pipe)
       {
           if(fluid.x == pipe.x && fluid.y == pipe.y)
@@ -268,6 +271,7 @@ function update(elapsedTime) {
               pipe.canRotate = false;
               fluid.fillPercentage = 0;
               gameOver = false;
+							notFound = false;
             }
             else if (fluid.direction == 1 && pipe.endDirection == 3 && pipe.startPipe)
             {
@@ -277,6 +281,7 @@ function update(elapsedTime) {
               pipe.canRotate = false
               fluid.fillPercentage = 0;
               gameOver = false;
+							notFound = false;
             }
             else if (fluid.direction == 3 && pipe.startDirection == 1)
             {
@@ -285,6 +290,7 @@ function update(elapsedTime) {
               fluid.direction = pipe.endDirection;
               pipe.canRotate = false;
               gameOver = false;
+							notFound = false;
               fluid.fillPercentage = 0;
             }
             else if(fluid.direction == 4 && pipe.startDirection == 2)
@@ -295,6 +301,7 @@ function update(elapsedTime) {
                 pipe.canRotate = false;
                 fluid.fillPercentage = 0;
                 gameOver = false;
+								notFound = false;
             }
             else if(fluid.direction == 1 && pipe.startDirection == 3)
             {
@@ -303,36 +310,45 @@ function update(elapsedTime) {
               pipe.canRotate = false;
               fluid.fillPercentage = 0;
               gameOver = false;
+							notFound = false;
             }
             else
             {
 
             }
           }
-          else
-          {
-            gameOver = true;
-          }
+					if(fluid.x >= 968 && fluid.y == 80)
+					{
+						notFound = false;
+					}
       });
+			if(notFound)
+			{
+				gameOver = true;
+			}
     }
     if(gameOver)
     {
       losing.play();
-      fluid.fillPercentage = o;
+      fluid.fillPercentage = 0;
       validMove = false;
     }
     if(fluid.x >= 968 && fluid.y == 80 )
     {
-      console.log("Got into the winning condition");
       winning.play();
       score += 100;
       level++;
-      var startOver = [];
-      laidPipe = startOver;
-      fluid.x = 6;
+      laidPipe = [];
+      fluid.direction = 2;
+			fluid.startingFlow = 4;
+			startPipe.fullOfWater = false;
+      fluid.speed += 1/5000;
+			fluid.fillPercentage = 0;
+			notFound = false;
+			console.log(startPipe.fullOfWater);
+			fluid.x = 6;
       fluid.y = 80;
-      direction = 2;
-      fluid.speed += 5/50;
+			win = true;
     }
 }
 
@@ -395,6 +411,10 @@ function render(elapsedTime, ctx) {
    ctx.fillStyle = "black";
    ctx.fillText("Score:" + score, canvas.width - 80, 10);
    ctx.fillText("Level:" + level, 10, 10);
+	 if(gameOver)
+	 {
+	 	ctx.fillText("Game over!", canvas.width / 2, canvas.height / 2);
+	}
 
 }
 

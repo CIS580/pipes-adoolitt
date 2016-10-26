@@ -5,14 +5,14 @@ created for the Fall 2016 class of CIS 580 at Kansas State University.
 ## Requirements
 For this assignment, you will be creating a clone of [Pipe Mania](https://en.wikipedia.org/wiki/Pipe_Mania), which will need to meet the following requirements:
 
-1. The game world is divided into a regular grid, in which tiles representing pipes can be placed (10 points).Done 
+1. The game world is divided into a regular grid, in which tiles representing pipes can be placed (10 points).Done
 2. At the start of each level, an un-editable starting pipe and ending pipe appear.  If the player manages to connect these with pipes, the level is completed.  The start and end connection of the pipes should be available (10 points).
 3. At the start of the level, 'fluid' begins to flow from the start pipe.  If the fluid manages to reach the end of assembled pipes, the game is lost (10 points).
 4. The game score and level are represented on-screen (10 points).Done
-5. The kind of pipe available appear in random order, and the player can place them by left-clicking on the board (10 points).
-6. Right-clicking on a pipe that does not yet have fluid in it rotates the pipe tile.  Pipes with fluid in them cannot be rotated (10 points).
-7. The speed at which fluid fills pipes increases as the player advances in level (10 points).
-8. Placing pipes, rotating pipes, finishing a level, and loosing the game should all have sound effects that play when these events happen (10 points).
+5. The kind of pipe available appear in random order, and the player can place them by left-clicking on the board (10 points).Done
+6. Right-clicking on a pipe that does not yet have fluid in it rotates the pipe tile.  Pipes with fluid in them cannot be rotated (10 points).done
+7. The speed at which fluid fills pipes increases as the player advances in level (10 points). Done
+8. Placing pipes, rotating pipes, finishing a level, and loosing the game should all have sound effects that play when these events happen (10 points).Done
 9. The game should play background music (10 points).Done
 10. Instructions for playing the game should appear in-game or on the page (10 points).Done
 

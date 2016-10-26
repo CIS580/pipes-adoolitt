@@ -25,12 +25,13 @@ var score = 0;
 var selection = 0;
 var rotatedPipeX;
 var rotatedPipeY;
+var count = 0;
 
 var fluid =
 {
 	x: 6,
 	y: 80,
-	speed: 1/50,
+	speed: 1/100,
   direction: 2,
   fillPercentage: 0,
   startingFlow: 4
@@ -67,8 +68,6 @@ canvas.onclick = function(event) {
 
         if(validMove)
         {
-          //console.log(currentPipe.startDirection);
-          //console.log(currentPipe.endDirection);
           backgroundMusic.pause();
           placingPipeDown.play();
           currentPipe.x = tempX;
@@ -76,16 +75,15 @@ canvas.onclick = function(event) {
           laidPipe.push(new Pipe({
             x: currentPipe.x,
             y: currentPipe.y,
-          }, currentPipe.spritesheet.src, currentPipe.maxFrame, currentPipe.startDirection,currentPipe.endDirection));
+          }, currentPipe.spritesheet.src, currentPipe.maxFrame, currentPipe.startDirection,currentPipe.endDirection,currentPipe.startPipe,currentPipe.fourWayPipe));
 
-					var selection = 1;
-          //var selection = Math.floor(Math.random() * 10 + 1);
+          var selection = Math.floor(Math.random() * 10 + 1);
           if(selection <= 4)
           {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1, 4, 2);
             currentPipe.startPipe = true;
           }
-          else if(selection <= 10)
+          else if(selection <= 8)
           {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png', 3, 3, 2);
             currentPipe.CurvedPipe = true;
@@ -105,7 +103,6 @@ canvas.onclick = function(event) {
 canvas.oncontextmenu = function(event)
 {
   event.preventDefault();
-  //console.log("Right mouse click.")
 
   //find the pipe selected
   currentX = event.offsetX;
@@ -165,8 +162,6 @@ canvas.oncontextmenu = function(event)
         }
       }
     }
-    //console.log(laidPipe.startDirection);
-    //console.log(laidPipe.endDirection);
   })
 }
 
@@ -195,7 +190,6 @@ function update(elapsedTime) {
   // TODO: Advance the fluid
   if(placingPipeDown.ended && backgroundMusic.paused)
   {
-    //console.log("Got in the if statement.");
     backgroundMusic.play();
   }
 
@@ -207,20 +201,16 @@ function update(elapsedTime) {
       fluid.y = 80;
       startPipe.fullOfWater = true;
       fluid.fillPercentage = 0;
-      //console.log(laidPipe);
       if(laidPipe.length == 0)
       {
         gameOver = true;
       }
       laidPipe.forEach(function(pipe)
       {
-        //console.log("In the list of pipes.")
           if(pipe.x == fluid.x && pipe.y == fluid.y && pipe.startDirection == 4)
           {
             fluid.direction = pipe.endDirection;
             fluid.startingFlow = pipe.startDirection;
-            console.log(fluid.direction);
-            console.log(pipe.endDirection);
             pipe.canRotate = false;
             notFound = false;
           }
@@ -232,7 +222,6 @@ function update(elapsedTime) {
     }
     if(fluid.fillPercentage >= 64 && startPipe.fullOfWater && !win)
     {
-			console.log(startPipe.fullOfWater);
       laidPipe.forEach(function(pipe)
       {
         if(fluid.x == pipe.x && fluid.y == pipe.y)
@@ -256,13 +245,11 @@ function update(elapsedTime) {
       {
         fluid.x -= 74;
       }
-      //console.log(fluid.direction);
 			notFound = true;
       laidPipe.forEach(function(pipe)
       {
           if(fluid.x == pipe.x && fluid.y == pipe.y)
           {
-            console.log("Found pipe");
             if(fluid.direction == 2 && pipe.startDirection == 4)
             {
               console.log("Entered in first if");
@@ -283,7 +270,7 @@ function update(elapsedTime) {
               gameOver = false;
 							notFound = false;
             }
-            else if (fluid.direction == 3 && pipe.startDirection == 1)
+            else if (fluid.direction == 3 && pipe.startDirection == 1 || fluid.direction == 3 && pipe.startDirection == 3)
             {
               console.log("enterd in third if");
               fluid.startingFlow = pipe.startDirection;
@@ -314,7 +301,65 @@ function update(elapsedTime) {
             }
             else
             {
+							if(pipe.fourWayPipe)
+							{
+								laidPipe.forEach(function(nextPipe)
+								{
+									if(fluid.y - 74 == nextPipe.y && fluid.x == nextPipe.x && !nextPipe.fullOfWater)
+									{
+										console.log("In north");
+										pipe.endDirection = 1;
+										pipe.startDirection = fluid.direction ;
+										fluid.direction = pipe.endDirection;
+		                fluid.startingFlow = pipe.startDirection;
+		                pipe.canRotate = false;
+		                fluid.fillPercentage = 0;
+		                gameOver = false;
+										notFound = false;
+									}
+									else if (fluid.x + 74 == nextPipe.x && fluid.y == nextPipe.y && !nextPipe.fullOfWater)
+									{
+										console.log("In east")
+										pipe.endDirection = 2;
+										pipe.startDirection = fluid.direction ;
+										fluid.direction = pipe.endDirection;
+										fluid.startingFlow = pipe.startDirection;
+										pipe.canRotate = false;
+										fluid.fillPercentage = 0;
+										gameOver = false;
+										notFound = false;
+									}
+									else if (fluid.y + 74 == nextPipe.y && fluid.x == nextPipe.x && !nextPipe.fullOfWater)
+									{
+										console.log("South is were we are at.");
+										pipe.endDirection = 3;
+										pipe.startDirection = fluid.direction ;
+										fluid.direction = pipe.endDirection;
+										fluid.startingFlow = pipe.startDirection;
+										pipe.canRotate = false;
+										fluid.fillPercentage = 0;
+										gameOver = false;
+										notFound = false;
+									}
+									else if(fluid.x - 74 == nextPipe.x && fluid.y == nextPipe.y && !nextPipe.fullOfWater)
+									{
+										console.log("We are to the west");
+										pipe.endDirection = 4;
+										pipe.startDirection = fluid.direction ;
+										fluid.direction = pipe.endDirection;
+										fluid.startingFlow = pipe.startDirection;
+										pipe.canRotate = false;
+										fluid.fillPercentage = 0;
+										gameOver = false;
+										notFound = false;
+									}
+									else
+									{
 
+									}
+								})
+							}
+							console.log(pipe.startDirection, fluid.direction);
             }
           }
 					if(fluid.x >= 968 && fluid.y == 80)
@@ -329,7 +374,11 @@ function update(elapsedTime) {
     }
     if(gameOver)
     {
-      losing.play();
+			if(count == 0)
+			{
+      	losing.play();
+			}
+			count++;
       fluid.fillPercentage = 0;
       validMove = false;
     }
@@ -345,7 +394,6 @@ function update(elapsedTime) {
       fluid.speed += 1/5000;
 			fluid.fillPercentage = 0;
 			notFound = false;
-			console.log(startPipe.fullOfWater);
 			fluid.x = 6;
       fluid.y = 80;
 			win = true;
@@ -374,22 +422,18 @@ function render(elapsedTime, ctx) {
    ctx.fillStyle = "blue";
    if(fluid.startingFlow == 1)
    {
-     //console.log("In fluid direction 1");
      ctx.fillRect(fluid.x, fluid.y, 64, fluid.fillPercentage);
    }
    else if(fluid.startingFlow == 4)
    {
-     //console.log("In fluid direction 2");
      ctx.fillRect(fluid.x, fluid.y, fluid.fillPercentage, 64);
    }
    else if(fluid.startingFlow == 2)
    {
-    // console.log("In fluid direction 4");
      ctx.fillRect(fluid.x + 64, fluid.y, (- fluid.fillPercentage), 64);
    }
    else
    {
-     //console.log("In fluid direction 3");
      ctx.fillRect(fluid.x, (fluid.y + 64), 64, ( -fluid.fillPercentage ));
    }
 
@@ -491,7 +535,7 @@ module.exports = exports = Pipe;
  * Creates a new player object
  * @param {Postition} position object specifying an x and y
  */
-function Pipe(position, image, totalframes, startDirection, endDirection) {
+function Pipe(position, image, totalframes, startDirection, endDirection,currentPipe, fourWayPipe) {
   this.x = position.x;
   this.y = position.y;
   this.width  = 64;
@@ -502,8 +546,8 @@ function Pipe(position, image, totalframes, startDirection, endDirection) {
   this.frame = 0;
   this.canRotate = true;
   this.CurvedPipe = false;
-  this.startPipe = false;
-  this.fourWayPipe = false;
+  this.startPipe = currentPipe;
+  this.fourWayPipe = fourWayPipe;
   this.maxFrame = totalframes;
   this.startDirection = startDirection;
   this.endDirection = endDirection;

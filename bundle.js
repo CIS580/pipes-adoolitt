@@ -83,7 +83,7 @@ canvas.onclick = function(event) {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/startPipe.png', 1, 4, 2);
             currentPipe.startPipe = true;
           }
-          else if(selection <= 8)
+          else if(selection <= 10)
           {
             currentPipe = new Pipe({x: 5, y: 5}, 'assets/CurvedPipe.png', 3, 3, 2);
             currentPipe.CurvedPipe = true;
@@ -301,6 +301,7 @@ function update(elapsedTime) {
             }
             else
             {
+							/*
 							if(pipe.fourWayPipe)
 							{
 								laidPipe.forEach(function(nextPipe)
@@ -360,6 +361,7 @@ function update(elapsedTime) {
 								})
 							}
 							console.log(pipe.startDirection, fluid.direction);
+							*/
             }
           }
 					if(fluid.x >= 968 && fluid.y == 80)
